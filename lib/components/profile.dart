@@ -31,3 +31,22 @@ class CProfileChat extends StatelessWidget {
     );
   }
 }
+
+class CProfileAvatar extends StatelessWidget {
+  final String text;
+
+  const CProfileAvatar({super.key, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      backgroundColor: Theme.of(context).colorScheme.secondary,
+      child: Text(
+        text[0],
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onSecondary,
+        ),
+      ),
+    );
+  }
+}

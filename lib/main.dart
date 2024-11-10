@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pam_final_client/pages/page_chats.dart';
 import 'package:pam_final_client/pages/page_conversation.dart';
 import 'package:pam_final_client/pages/page_login.dart';
+import 'package:pam_final_client/pages/page_register.dart';
 
 void main() {
   runApp(const MyApp());
@@ -41,6 +42,7 @@ class Page extends StatelessWidget {
         child: ListView(
           children: const [
             Option(title: "Login", page: Pagelogin()),
+            Option(title: "Register", page: PageRegister()),
             Option(title: "Conversation", page: PageConversation()),
             Option(title: "Chats", page: PageChats()),
           ],

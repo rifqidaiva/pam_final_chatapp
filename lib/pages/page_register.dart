@@ -3,22 +3,24 @@ import 'package:pam_final_client/components/icon.dart';
 import 'package:pam_final_client/components/input.dart';
 import 'package:pam_final_client/components/text.dart';
 
-class Pagelogin extends StatefulWidget {
-  const Pagelogin({super.key});
+class PageRegister extends StatefulWidget {
+  const PageRegister({super.key});
 
   @override
-  State<Pagelogin> createState() => _PageloginState();
+  State<PageRegister> createState() => _PageRegisterState();
 }
 
-class _PageloginState extends State<Pagelogin> {
+class _PageRegisterState extends State<PageRegister> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _passwordConfirmController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Masuk"),
+        title: const Text("Daftar"),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -26,11 +28,11 @@ class _PageloginState extends State<Pagelogin> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CIconHeader(icon: Icons.login_rounded),
-              const CTextHeader(text: "Masuk HaloTalk"),
+              const CIconHeader(icon: Icons.app_registration_rounded),
+              const CTextHeader(text: "Daftar HaloTalk"),
               const SizedBox(height: 16),
               const Text(
-                "Silahkan masuk dengan menggunakan email dan password Anda untuk melanjutkan ke aplikasi.",
+                "Silahkan daftar dengan menggunakan email dan password Anda untuk melanjutkan ke aplikasi.",
               ),
               const SizedBox(height: 16),
               CTextField(
@@ -45,14 +47,20 @@ class _PageloginState extends State<Pagelogin> {
                 prefixIcon: Icons.lock,
                 obscureText: true,
               ),
+              CTextField(
+                controller: _passwordConfirmController,
+                labelText: "Konfirmasi Password",
+                prefixIcon: Icons.lock,
+                obscureText: true,
+              ),
               const SizedBox(height: 32),
               FilledButton(
                 onPressed: () {},
-                child: const Text("Masuk"),
+                child: const Text("Daftar"),
               ),
               TextButton(
                 onPressed: () {},
-                child: const Text("Belum punya akun? Daftar"),
+                child: const Text("Sudah punya akun? Masuk"),
               ),
             ],
           ),
