@@ -9,15 +9,7 @@ class CProfileChat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        CircleAvatar(
-          backgroundColor: Theme.of(context).colorScheme.secondary,
-          child: Text(
-            text[0],
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSecondary,
-            ),
-          ),
-        ),
+        CProfileAvatar(text: text),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
@@ -34,19 +26,18 @@ class CProfileChat extends StatelessWidget {
 
 class CProfileAvatar extends StatelessWidget {
   final String text;
+  final double radius;
 
-  const CProfileAvatar({super.key, required this.text});
+  const CProfileAvatar({super.key, required this.text, this.radius = 20});
 
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
+      // ${Theme.of(context).colorScheme.secondary.value.toRadixString(16).substring(2)}
+      backgroundImage: NetworkImage(
+          "https://ui-avatars.com/api/?name=$text&background=random&color=fff"),
       backgroundColor: Theme.of(context).colorScheme.secondary,
-      child: Text(
-        text[0],
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onSecondary,
-        ),
-      ),
+      radius: radius,
     );
   }
 }

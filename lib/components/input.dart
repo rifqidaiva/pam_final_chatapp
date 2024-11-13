@@ -27,3 +27,30 @@ class CTextField extends StatelessWidget {
     );
   }
 }
+
+class CTextSearch extends StatelessWidget {
+  final TextEditingController controller;
+  final String hintText;
+
+  const CTextSearch({
+    super.key,
+    required this.controller,
+    required this.hintText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      autofocus: true,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
+        ),
+        hintText: hintText,
+        prefixIcon: const Icon(Icons.search),
+      ),
+    );
+  }
+}

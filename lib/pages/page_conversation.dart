@@ -10,7 +10,7 @@ class PageConversation extends StatefulWidget {
 }
 
 class _PageConversationState extends State<PageConversation> {
-  final int userId = 1;
+  final int userID = 1;
   final List<Map<String, dynamic>> conversation = [
     {
       "id": 1,
@@ -95,6 +95,7 @@ class _PageConversationState extends State<PageConversation> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leadingWidth: 24,
         title: const CProfileChat(text: "Alexander Wahyu"),
       ),
       body: Stack(
@@ -122,7 +123,7 @@ class _PageConversationState extends State<PageConversation> {
               setState(() {
                 conversation.add({
                   "id": conversation.length + 1,
-                  "sender_id": userId,
+                  "sender_id": userID,
                   "receiver_id": 2,
                   "content": message,
                   "timestamp": DateTime.now().toIso8601String(),
@@ -139,7 +140,7 @@ class _PageConversationState extends State<PageConversation> {
 class ChatBubble extends StatelessWidget {
   final Map<String, dynamic> chat;
   final bool tail;
-  final int userId = 1;
+  final int userID = 1;
 
   const ChatBubble({
     super.key,
@@ -151,12 +152,12 @@ class ChatBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return BubbleSpecialThree(
       text: chat["content"],
-      isSender: chat["sender_id"] == userId,
-      color: chat["sender_id"] == userId
+      isSender: chat["sender_id"] == userID,
+      color: chat["sender_id"] == userID
           ? Theme.of(context).colorScheme.primary
           : Theme.of(context).colorScheme.secondary,
       textStyle: TextStyle(
-        color: chat["sender_id"] == userId
+        color: chat["sender_id"] == userID
             ? Theme.of(context).colorScheme.onPrimary
             : Theme.of(context).colorScheme.onSecondary,
       ),

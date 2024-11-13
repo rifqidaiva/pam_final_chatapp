@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pam_final_client/pages/page_chats.dart';
 import 'package:pam_final_client/pages/page_conversation.dart';
 import 'package:pam_final_client/pages/page_login.dart';
+import 'package:pam_final_client/pages/page_profile.dart';
 import 'package:pam_final_client/pages/page_register.dart';
 
 void main() {
@@ -45,6 +46,7 @@ class Page extends StatelessWidget {
             Option(title: "Register", page: PageRegister()),
             Option(title: "Conversation", page: PageConversation()),
             Option(title: "Chats", page: PageChats()),
+            Option(title: "Profile", page: PageProfile()),
           ],
         ),
       ),

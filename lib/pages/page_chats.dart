@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pam_final_client/components/input.dart';
+import 'package:pam_final_client/components/popup.dart';
 import 'package:pam_final_client/components/profile.dart';
 
 class PageChats extends StatefulWidget {
@@ -21,21 +23,69 @@ class _PageChatsState extends State<PageChats> {
     {"name": "User 3", "message": "Message 3", "timestamp": "12:30"},
   ];
 
+  final TextEditingController _searchController = TextEditingController();
+  var isSearching = false;
+
+  void _toggleSearch() {
+    setState(() {
+      isSearching = !isSearching;
+      if (!isSearching) {
+        _searchController.clear();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Pesan"),
+        automaticallyImplyLeading: !isSearching,
+        title: isSearching
+            ? CTextSearch(controller: _searchController, hintText: "Cari pesan")
+            : const Text("Pesan"),
+        actions: [
+          IconButton(
+            onPressed: _toggleSearch,
+            icon: Icon(isSearching ? Icons.close : Icons.search),
+          ),
+          if (!isSearching)
+            CPopup(
+              menuChildren: [
+                ListTile(
+                  title: const Text("Pengaturan"),
+                  leading: const Icon(Icons.settings),
+                  visualDensity: VisualDensity.compact,
+                  onTap: () {},
+                ),
+                ListTile(
+                  title: const Text("Keluar"),
+                  leading: const Icon(Icons.logout),
+                  visualDensity: VisualDensity.compact,
+                  onTap: () {},
+                ),
+              ],
+            ),
+        ],
       ),
-      body: ListView.builder(
-        itemCount: chats.length,
-        itemBuilder: (context, index) {
-          return ChatCard(
-            name: chats[index]["name"],
-            message: chats[index]["message"],
-            timestamp: chats[index]["timestamp"],
-          );
-        },
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: chats.length,
+              itemBuilder: (context, index) {
+                return ChatCard(
+                  name: chats[index]["name"],
+                  message: chats[index]["message"],
+                  timestamp: chats[index]["timestamp"],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: const Icon(Icons.add),
       ),
     );
   }
