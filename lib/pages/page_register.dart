@@ -1,8 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:pam_final_client/components/icon.dart';
 import 'package:pam_final_client/components/input.dart';
 import 'package:pam_final_client/components/text.dart';
 import 'package:pam_final_client/pages/page_login.dart';
+import 'package:pam_final_client/server/server.dart';
 
 class PageRegister extends StatefulWidget {
   const PageRegister({super.key});
@@ -16,6 +18,11 @@ class _PageRegisterState extends State<PageRegister> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _passwordConfirmController =
       TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+
+  bool _isPasswordMatch() {
+    return _passwordController.text == _passwordConfirmController.text;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +50,12 @@ class _PageRegisterState extends State<PageRegister> {
                 obscureText: false,
               ),
               CTextField(
+                controller: _nameController,
+                labelText: "Nama",
+                prefixIcon: Icons.person,
+                obscureText: false,
+              ),
+              CTextField(
                 controller: _passwordController,
                 labelText: "Password",
                 prefixIcon: Icons.lock,
@@ -56,10 +69,58 @@ class _PageRegisterState extends State<PageRegister> {
               ),
               const SizedBox(height: 32),
               FilledButton(
-                onPressed: () {},
                 child: const Text("Daftar"),
+                onPressed: () async {
+                  if (!_isPasswordMatch()) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Password tidak sama"),
+                      ),
+                    );
+                    return;
+                  }
+
+                  var server = Server();
+
+                  try {
+                    var response = await server.register(
+                      email: _emailController.text,
+                      password: _passwordController.text,
+                      name: _nameController.text,
+                    );
+
+                    if (!context.mounted) return;
+
+                    if (response.statusCode == 200) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Berhasil mendaftar"),
+                        ),
+                      );
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Pagelogin(),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(response.data["message"]),
+                        ),
+                      );
+                    }
+                  } on DioException catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(e.response?.data["message"] ?? e.message),
+                      ),
+                    );
+                  }
+                },
               ),
               TextButton(
+                child: const Text("Sudah punya akun? Masuk"),
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
@@ -68,7 +129,6 @@ class _PageRegisterState extends State<PageRegister> {
                     ),
                   );
                 },
-                child: const Text("Sudah punya akun? Masuk"),
               ),
             ],
           ),

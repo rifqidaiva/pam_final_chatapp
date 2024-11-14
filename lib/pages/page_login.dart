@@ -4,6 +4,7 @@ import 'package:pam_final_client/components/input.dart';
 import 'package:pam_final_client/components/text.dart';
 import 'package:pam_final_client/pages/app/app.dart';
 import 'package:pam_final_client/pages/page_register.dart';
+import 'package:pam_final_client/server/server.dart';
 
 class Pagelogin extends StatefulWidget {
   const Pagelogin({super.key});
@@ -51,12 +52,13 @@ class _PageloginState extends State<Pagelogin> {
               FilledButton(
                 child: const Text("Masuk"),
                 onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const App(),
-                    ),
-                  );
+                  // test endpoint
+                  var server = Server();
+                  var response = server.test();
+
+                  response.then((value) {
+                    print(value);
+                  });
                 },
               ),
               TextButton(
