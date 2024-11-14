@@ -3,14 +3,14 @@ import 'package:pam_final_client/components/input.dart';
 import 'package:pam_final_client/components/popup.dart';
 import 'package:pam_final_client/components/profile.dart';
 
-class PageChats extends StatefulWidget {
-  const PageChats({super.key});
+class AppChats extends StatefulWidget {
+  const AppChats({super.key});
 
   @override
-  State<PageChats> createState() => _PageChatsState();
+  State<AppChats> createState() => _AppChatsState();
 }
 
-class _PageChatsState extends State<PageChats> {
+class _AppChatsState extends State<AppChats> {
   final List<Map<String, dynamic>> chats = [
     {"name": "User 1", "message": "Message 1", "timestamp": "12:30"},
     {"name": "User 2", "message": "Message 2", "timestamp": "12:30"},
@@ -42,7 +42,10 @@ class _PageChatsState extends State<PageChats> {
         automaticallyImplyLeading: !isSearching,
         title: isSearching
             ? CTextSearch(controller: _searchController, hintText: "Cari pesan")
-            : const Text("Pesan"),
+            : const Text(
+                "HaloTalk",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
         actions: [
           IconButton(
             onPressed: _toggleSearch,

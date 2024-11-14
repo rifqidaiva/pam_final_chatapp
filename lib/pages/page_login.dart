@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pam_final_client/components/icon.dart';
 import 'package:pam_final_client/components/input.dart';
 import 'package:pam_final_client/components/text.dart';
+import 'package:pam_final_client/pages/app/app.dart';
+import 'package:pam_final_client/pages/page_register.dart';
 
 class Pagelogin extends StatefulWidget {
   const Pagelogin({super.key});
@@ -47,12 +49,26 @@ class _PageloginState extends State<Pagelogin> {
               ),
               const SizedBox(height: 32),
               FilledButton(
-                onPressed: () {},
                 child: const Text("Masuk"),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const App(),
+                    ),
+                  );
+                },
               ),
               TextButton(
-                onPressed: () {},
                 child: const Text("Belum punya akun? Daftar"),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PageRegister(),
+                    ),
+                  );
+                },
               ),
             ],
           ),

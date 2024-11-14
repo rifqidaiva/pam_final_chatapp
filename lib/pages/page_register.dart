@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pam_final_client/components/icon.dart';
 import 'package:pam_final_client/components/input.dart';
 import 'package:pam_final_client/components/text.dart';
+import 'package:pam_final_client/pages/page_login.dart';
 
 class PageRegister extends StatefulWidget {
   const PageRegister({super.key});
@@ -59,7 +60,14 @@ class _PageRegisterState extends State<PageRegister> {
                 child: const Text("Daftar"),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Pagelogin(),
+                    ),
+                  );
+                },
                 child: const Text("Sudah punya akun? Masuk"),
               ),
             ],

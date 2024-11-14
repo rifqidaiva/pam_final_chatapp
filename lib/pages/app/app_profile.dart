@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:pam_final_client/components/profile.dart';
 import 'package:pam_final_client/components/text.dart';
 
-class PageProfile extends StatefulWidget {
-  const PageProfile({super.key});
+class AppProfile extends StatefulWidget {
+  const AppProfile({super.key});
 
   @override
-  State<PageProfile> createState() => _PageProfileState();
+  State<AppProfile> createState() => _AppProfileState();
 }
 
-class _PageProfileState extends State<PageProfile> {
+class _AppProfileState extends State<AppProfile> {
   final userID = 1;
   final userName = "User 1";
   final userEmail = "user@gmail.com";

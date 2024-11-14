@@ -49,7 +49,7 @@ class CTextSearch extends StatelessWidget {
           borderSide: BorderSide.none,
         ),
         hintText: hintText,
-        prefixIcon: const Icon(Icons.search),
+        icon: const Icon(Icons.search),
       ),
     );
   }
