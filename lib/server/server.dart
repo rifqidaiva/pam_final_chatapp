@@ -14,34 +14,98 @@ class Server {
     _dio.options.receiveTimeout = const Duration(seconds: 3);
   }
 
-  Future<Response> login({
+  void login({
     required String email,
     required String password,
+    required Function(String) onSucess,
+    required Function(DioException) onError,
   }) async {
-    return await _dio.post("/login", data: {
-      "email": email,
-      "password": password,
-    });
+    try {
+      var response = await _dio.post(
+        "/login",
+        queryParameters: {
+          "email": email,
+          "password": password,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        onSucess(response.data["token"]);
+      } else {
+        onError(DioException(
+          requestOptions: response.requestOptions,
+          response: response,
+          message: "${response.data["message"]}",
+          error: "login gagal dengan status: ${response.statusCode}",
+        ));
+      }
+    } on DioException catch (e) {
+      onError(e);
+    }
   }
 
-  Future<Response> register({
+  void register({
     required String email,
     required String password,
     required String name,
+    required Function onSucess,
+    required Function(DioException) onError,
   }) async {
-    return await _dio.post(
-      "/register",
-      queryParameters: {
-        "email": email,
-        "password": password,
-        "name": name,
-      },
-    );
+    try {
+      var response = await _dio.post(
+        "/register",
+        queryParameters: {
+          "email": email,
+          "password": password,
+          "name": name,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        onSucess();
+      } else {
+        onError(DioException(
+          requestOptions: response.requestOptions,
+          response: response,
+          message: "${response.data["message"]}",
+          error: "registrasi gagal dengan status: ${response.statusCode}",
+        ));
+      }
+    } on DioException catch (e) {
+      onError(e);
+    }
   }
 
-  // Test endpoint
-  Future<Response> test() async {
-    return await _dio.get("/test");
+  // Get user data from token
+  void getUserFromToken({
+    required String token,
+    required Function(User) onSucess,
+    required Function(DioException) onError,
+  }) async {
+    try {
+      var response = await _dio.get(
+        "/user",
+        options: Options(
+          headers: {
+            "Authorization": "Bearer $token",
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        onSucess(User.fromJson(response.data));
+      } else {
+        onError(DioException(
+          requestOptions: response.requestOptions,
+          response: response,
+          message: "${response.data["message"]}",
+          error:
+              "gagal mendapatkan data user dengan status: ${response.statusCode}",
+        ));
+      }
+    } on DioException catch (e) {
+      onError(e);
+    }
   }
 }
 
@@ -51,14 +115,15 @@ class User {
   final int id;
   final String email;
   final String name;
+  final String? token;
 
-  User({required this.id, required this.email, required this.name});
+  User({required this.id, required this.email, required this.name, this.token});
 
   factory User.fromJson(Map<String, dynamic> json) {
-    return User(id: json["id"], email: json["email"], name: json["name"]);
-  }
-
-  factory User.fromJwt(Map<String, dynamic> jwt) {
-    return User(id: jwt["id"], email: jwt["email"], name: jwt["name"]);
+    return User(
+        id: json["id"],
+        email: json["email"],
+        name: json["name"],
+        token: json["token"]);
   }
 }

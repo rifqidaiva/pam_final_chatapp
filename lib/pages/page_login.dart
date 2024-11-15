@@ -52,13 +52,43 @@ class _PageloginState extends State<Pagelogin> {
               FilledButton(
                 child: const Text("Masuk"),
                 onPressed: () {
-                  // test endpoint
-                  var server = Server();
-                  var response = server.test();
+                  Server().login(
+                    email: _emailController.text,
+                    password: _passwordController.text,
+                    onSucess: (token) {
+                      Server().getUserFromToken(
+                        token: token,
+                        onSucess: (user) {
+                          currentUser = user;
+                        },
+                        onError: (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                e.response?.data["message"] ?? e.message,
+                              ),
+                            ),
+                          );
+                        },
+                      );
 
-                  response.then((value) {
-                    print(value);
-                  });
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const App(),
+                        ),
+                      );
+                    },
+                    onError: (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            e.response?.data["message"] ?? e.message,
+                          ),
+                        ),
+                      );
+                    },
+                  );
                 },
               ),
               TextButton(

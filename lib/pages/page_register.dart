@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:pam_final_client/components/icon.dart';
 import 'package:pam_final_client/components/input.dart';
@@ -70,53 +69,44 @@ class _PageRegisterState extends State<PageRegister> {
               const SizedBox(height: 32),
               FilledButton(
                 child: const Text("Daftar"),
-                onPressed: () async {
+                onPressed: () {
                   if (!_isPasswordMatch()) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text("Password tidak sama"),
+                        content: Text("password tidak sama"),
                       ),
                     );
                     return;
                   }
 
-                  var server = Server();
-
-                  try {
-                    var response = await server.register(
-                      email: _emailController.text,
-                      password: _passwordController.text,
-                      name: _nameController.text,
-                    );
-
-                    if (!context.mounted) return;
-
-                    if (response.statusCode == 200) {
+                  Server().register(
+                    email: _emailController.text,
+                    password: _passwordController.text,
+                    name: _nameController.text,
+                    onSucess: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text("Berhasil mendaftar"),
+                          content: Text("registrasi berhasil"),
                         ),
                       );
+
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const Pagelogin(),
                         ),
                       );
-                    } else {
+                    },
+                    onError: (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(response.data["message"]),
+                          content: Text(
+                            e.response?.data["message"] ?? e.message,
+                          ),
                         ),
                       );
-                    }
-                  } on DioException catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(e.response?.data["message"] ?? e.message),
-                      ),
-                    );
-                  }
+                    },
+                  );
                 },
               ),
               TextButton(
