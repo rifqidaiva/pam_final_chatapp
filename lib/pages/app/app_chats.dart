@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pam_final_client/components/input.dart';
 import 'package:pam_final_client/components/popup.dart';
 import 'package:pam_final_client/components/profile.dart';
+import 'package:pam_final_client/instances/client.dart';
+import 'package:pam_final_client/instances/server.dart';
 
 class AppChats extends StatefulWidget {
   const AppChats({super.key});
@@ -23,24 +25,47 @@ class _AppChatsState extends State<AppChats> {
     {"name": "User 3", "message": "Message 3", "timestamp": "12:30"},
   ];
 
+  List<User> _users = [];
+
   final TextEditingController _searchController = TextEditingController();
-  var isSearching = false;
+  var _isSearching = false;
 
   void _toggleSearch() {
     setState(() {
-      isSearching = !isSearching;
-      if (!isSearching) {
+      _isSearching = !_isSearching;
+      if (!_isSearching) {
         _searchController.clear();
       }
     });
   }
 
   @override
+  void initState() {
+    super.initState();
+    Server().getUsers(
+      onSucess: (users) {
+        setState(() {
+          _users = users;
+        });
+      },
+      onError: (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.response?.data["message"] ?? e.message,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: !isSearching,
-        title: isSearching
+        automaticallyImplyLeading: !_isSearching,
+        title: _isSearching
             ? CTextSearch(controller: _searchController, hintText: "Cari pesan")
             : const Text(
                 "HaloTalk",
@@ -49,9 +74,9 @@ class _AppChatsState extends State<AppChats> {
         actions: [
           IconButton(
             onPressed: _toggleSearch,
-            icon: Icon(isSearching ? Icons.close : Icons.search),
+            icon: Icon(_isSearching ? Icons.close : Icons.search),
           ),
-          if (!isSearching)
+          if (!_isSearching)
             CPopup(
               menuChildren: [
                 ListTile(
@@ -87,7 +112,10 @@ class _AppChatsState extends State<AppChats> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () async {
+          var token = await Client().getToken();
+          print(token);
+        },
         child: const Icon(Icons.add),
       ),
     );

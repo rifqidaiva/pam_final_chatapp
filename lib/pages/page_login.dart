@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:pam_final_client/components/icon.dart';
 import 'package:pam_final_client/components/input.dart';
 import 'package:pam_final_client/components/text.dart';
+import 'package:pam_final_client/instances/client.dart';
 import 'package:pam_final_client/pages/app/app.dart';
 import 'package:pam_final_client/pages/page_register.dart';
-import 'package:pam_final_client/server/server.dart';
+import 'package:pam_final_client/instances/server.dart';
 
 class Pagelogin extends StatefulWidget {
   const Pagelogin({super.key});
@@ -56,21 +57,7 @@ class _PageloginState extends State<Pagelogin> {
                     email: _emailController.text,
                     password: _passwordController.text,
                     onSucess: (token) {
-                      Server().getUserFromToken(
-                        token: token,
-                        onSucess: (user) {
-                          currentUser = user;
-                        },
-                        onError: (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                e.response?.data["message"] ?? e.message,
-                              ),
-                            ),
-                          );
-                        },
-                      );
+                      Client().setToken(token);
 
                       Navigator.pushReplacement(
                         context,

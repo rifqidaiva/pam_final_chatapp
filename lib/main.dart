@@ -23,12 +23,12 @@ class MyApp extends StatelessWidget {
       title: "Tugas Akhir PAM",
       theme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: Colors.orange,
+        colorSchemeSeed: Colors.blue,
         brightness: Brightness.light,
       ),
       darkTheme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: Colors.orange,
+        colorSchemeSeed: Colors.blue,
         brightness: Brightness.dark,
       ),
       themeMode: ThemeMode.light,
