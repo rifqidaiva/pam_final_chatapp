@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:pam_final_client/instances/client.dart';
 
 class Server {
@@ -13,6 +14,13 @@ class Server {
     _dio.options.baseUrl = "http://localhost:8080";
     _dio.options.connectTimeout = const Duration(seconds: 5);
     _dio.options.receiveTimeout = const Duration(seconds: 3);
+  }
+
+  // MARK: /ws
+  /// Connect to WebSocket
+  WebSocketChannel ws() {
+    final wsUrl = Uri.parse('ws://localhost:8080/ws');
+    return WebSocketChannel.connect(wsUrl);
   }
 
   // MARK: /login
@@ -112,6 +120,44 @@ class Server {
     }
   }
 
+  // MARK: /user?id=
+  /// Get user data by id
+  void getUserById({
+    required int id,
+    required Function(User) onSucess,
+    required Function(DioException) onError,
+  }) async {
+    try {
+      String token = await Client().getToken() ?? "";
+
+      var response = await _dio.get(
+        "/user",
+        queryParameters: {
+          "id": id,
+        },
+        options: Options(
+          headers: {
+            "Authorization": "Bearer $token",
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        onSucess(User.fromJson(response.data));
+      } else {
+        onError(DioException(
+          requestOptions: response.requestOptions,
+          response: response,
+          message: "${response.data["message"]}",
+          error:
+              "gagal mendapatkan data user dengan status: ${response.statusCode}",
+        ));
+      }
+    } on DioException catch (e) {
+      onError(e);
+    }
+  }
+
   // MARK: /users
   /// Get all users except the current user
   void getUsers({
@@ -154,7 +200,7 @@ class Server {
   /// Get conversation between current user and another user
   void getConversation({
     required int userId,
-    required Function(List<Map<String, dynamic>>) onSucess,
+    required Function(List<Message>) onSucess,
     required Function(DioException) onError,
   }) async {
     try {
@@ -173,7 +219,11 @@ class Server {
       );
 
       if (response.statusCode == 200) {
-        onSucess(response.data);
+        List<Message> messages = [];
+        for (var message in response.data) {
+          messages.add(Message.fromJson(message));
+        }
+        onSucess(messages);
       } else {
         onError(DioException(
           requestOptions: response.requestOptions,
@@ -189,8 +239,9 @@ class Server {
   }
 
   // MARK: /allmessages
+  /// Get all messages from the current user
   void getAllMessages({
-    required Function(List<Map<String, dynamic>>) onSucess,
+    required Function(List<Message>) onSucess,
     required Function(DioException) onError,
   }) async {
     try {
@@ -206,7 +257,11 @@ class Server {
       );
 
       if (response.statusCode == 200) {
-        onSucess(response.data);
+        List<Message> messages = [];
+        for (var message in response.data) {
+          messages.add(Message.fromJson(message));
+        }
+        onSucess(messages);
       } else {
         onError(DioException(
           requestOptions: response.requestOptions,
@@ -241,6 +296,32 @@ class User {
       email: json["email"],
       name: json["name"],
       token: json["token"],
+    );
+  }
+}
+
+class Message {
+  int id;
+  int senderId;
+  int receiverId;
+  String message;
+  String timestamp;
+
+  Message({
+    required this.id,
+    required this.senderId,
+    required this.receiverId,
+    required this.message,
+    required this.timestamp,
+  });
+
+  factory Message.fromJson(Map<String, dynamic> json) {
+    return Message(
+      id: json["id"],
+      senderId: json["sender_id"],
+      receiverId: json["receiver_id"],
+      message: json["content"],
+      timestamp: json["timestamp"],
     );
   }
 }

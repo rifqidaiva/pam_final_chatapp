@@ -13,21 +13,8 @@ class AppChats extends StatefulWidget {
 }
 
 class _AppChatsState extends State<AppChats> {
-  final List<Map<String, dynamic>> chats = [
-    {"name": "User 1", "message": "Message 1", "timestamp": "12:30"},
-    {"name": "User 2", "message": "Message 2", "timestamp": "12:30"},
-    {"name": "User 3", "message": "Message 3", "timestamp": "12:30"},
-    {"name": "User 2", "message": "Message 2", "timestamp": "12:30"},
-    {"name": "User 2", "message": "Message 2", "timestamp": "12:30"},
-    {"name": "User 3", "message": "Message 3", "timestamp": "12:30"},
-    {"name": "User 3", "message": "Message 3", "timestamp": "12:30"},
-    {"name": "User 2", "message": "Message 2", "timestamp": "12:30"},
-    {"name": "User 3", "message": "Message 3", "timestamp": "12:30"},
-  ];
-
-  List<User> _users = [];
-
   final TextEditingController _searchController = TextEditingController();
+  final List<Map<String, dynamic>> _chats = [];
   var _isSearching = false;
 
   void _toggleSearch() {
@@ -42,11 +29,67 @@ class _AppChatsState extends State<AppChats> {
   @override
   void initState() {
     super.initState();
-    Server().getUsers(
-      onSucess: (users) {
-        setState(() {
-          _users = users;
-        });
+    Server().getAllMessages(
+      onSucess: (messages) {
+        Map<String, Map<String, dynamic>> latestMessages = {};
+        for (var message in messages) {
+          if (latestMessages.containsKey(message.senderId.toString())) {
+            if (DateTime.parse(
+                    latestMessages[message.senderId.toString()]!["timestamp"])
+                .isBefore(DateTime.parse(message.timestamp))) {
+              latestMessages[message.senderId.toString()] = {
+                "message": message.message,
+                "timestamp": message.timestamp,
+              };
+            }
+          } else {
+            latestMessages[message.senderId.toString()] = {
+              "message": message.message,
+              "timestamp": message.timestamp,
+            };
+          }
+        }
+
+        Client().getUser(
+          onSucess: (user) {
+            latestMessages.forEach((senderId, messageData) {
+              if (user.id == int.parse(senderId)) {
+                return;
+              }
+
+              Server().getUserById(
+                id: int.parse(senderId),
+                onSucess: (user) {
+                  setState(() {
+                    _chats.add({
+                      "name": user.name,
+                      "message": messageData["message"],
+                      "timestamp": messageData["timestamp"],
+                    });
+                  });
+                },
+                onError: (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        e.response?.data["message"] ?? e.message,
+                      ),
+                    ),
+                  );
+                },
+              );
+            });
+          },
+          onError: (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  e.response?.data["message"] ?? e.message,
+                ),
+              ),
+            );
+          },
+        );
       },
       onError: (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -99,12 +142,12 @@ class _AppChatsState extends State<AppChats> {
         children: [
           Expanded(
             child: ListView.builder(
-              itemCount: chats.length,
+              itemCount: _chats.length,
               itemBuilder: (context, index) {
                 return ChatCard(
-                  name: chats[index]["name"],
-                  message: chats[index]["message"],
-                  timestamp: chats[index]["timestamp"],
+                  name: _chats[index]["name"],
+                  message: _chats[index]["message"],
+                  timestamp: _chats[index]["timestamp"],
                 );
               },
             ),
@@ -138,7 +181,7 @@ class ChatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text(message),
+      subtitle: Text(message, maxLines: 1, overflow: TextOverflow.ellipsis),
       trailing: Text(timestamp),
       leading: CProfileAvatar(text: name),
     );
