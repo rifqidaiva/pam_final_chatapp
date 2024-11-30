@@ -1,4 +1,4 @@
-module github.com/rifqidaiva/pam-final-server
+module github.com/rifqidaiva/pam_final_chatapp/server
 
 go 1.23.2
 
