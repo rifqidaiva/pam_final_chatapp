@@ -46,9 +46,9 @@ func init() {
 		name TEXT
 	);
 
-	INSERT INTO users (email, password, name) VALUES ("admin@gmail.com", "$2a$10$4xlitCzDl444z16xQVBaEupzQY0/wv6sqEeN6mkYqfdnS5DBnqbaq", "admin");
-	INSERT INTO users (email, password, name) VALUES ("kaptenwahyu@gmail.com", "$2a$10$KWFFkJd9XiFXFfYBPhr8D.dUTRcgVRQX/JjSub2lA1itmz5hBv0EO", "wahyu");
-	INSERT INTO users (email, password, name) VALUES ("aiken@gmail.com", "$2a$10$3LnGFUOy6i4ehr9NuDI9r.GdVf3pM7gcRbfqI/K9aZjc7GrHq7KSi", "aiken");
+	INSERT INTO users (email, password, name) VALUES ("admin@gmail.com", "$2a$10$Sffp4bQMpMVx9vTnvw6ONOBEbYwEfZTq7Z.gphfBi8kiXuBOGS7Uy", "Admin");
+	INSERT INTO users (email, password, name) VALUES ("aiken@gmail.com", "$2a$10$Q0FrZosG.ekVpyGz41C4g.nf6ks5G6hDWItTmLhMyRhLwq/1l2rI6", "Aiken");
+	INSERT INTO users (email, password, name) VALUES ("wahyu@gmail.com", "$2a$10$mLykOmNSkp02xP8t4zQfzeQh65.6.BHLhp2VaB3KfyfAVpVO9W.hG", "Wahyu");
 
 	CREATE TABLE IF NOT EXISTS messages (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,

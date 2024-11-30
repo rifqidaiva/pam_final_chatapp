@@ -24,9 +24,9 @@ class _PageConversationState extends State<PageConversation> {
     Uri.parse('ws://localhost:8080/ws'),
   );
 
-  // Default current user ID is 1 (Admin)
+  // Default current user ID is 1 (Admin in database)
   int _currentUserId = 1;
-  late User _otherUser;
+  User _otherUser = User(id: 1, name: "", email: "", token: "");
 
   @override
   void initState() {
@@ -120,7 +120,7 @@ class _PageConversationState extends State<PageConversation> {
     return Scaffold(
       appBar: AppBar(
         leadingWidth: 24,
-        title: const CProfileChat(text: "Alexander Wahyu"),
+        title: CProfileChat(text: _otherUser.name),
       ),
       body: Stack(
         children: [

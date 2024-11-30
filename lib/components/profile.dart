@@ -33,11 +33,15 @@ class CProfileAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
-      // ${Theme.of(context).colorScheme.secondary.value.toRadixString(16).substring(2)}
-      backgroundImage: NetworkImage(
-          "https://ui-avatars.com/api/?name=$text&background=random&color=fff"),
       backgroundColor: Theme.of(context).colorScheme.secondary,
       radius: radius,
+      child: Text(
+        text.isEmpty ? "?" : text[0].toUpperCase(),
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onSecondary,
+          fontSize: radius * 0.8,
+        ),
+      ),
     );
   }
 }

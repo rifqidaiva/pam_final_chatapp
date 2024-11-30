@@ -5,7 +5,9 @@ import 'package:pam_final_client/components/profile.dart';
 import 'package:pam_final_client/instances/client.dart';
 import 'package:pam_final_client/instances/server.dart';
 import 'package:pam_final_client/pages/app/page_conversation.dart';
+import 'package:pam_final_client/pages/app/page_new.dart';
 import 'package:pam_final_client/pages/page_login.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class AppChats extends StatefulWidget {
   const AppChats({super.key});
@@ -17,7 +19,12 @@ class AppChats extends StatefulWidget {
 class _AppChatsState extends State<AppChats> {
   final TextEditingController _searchController = TextEditingController();
   final List<Map<String, dynamic>> _chats = [];
-  late int currentUserId;
+  final _channel = WebSocketChannel.connect(
+    Uri.parse('ws://localhost:8080/ws'),
+  );
+
+  // Default current user ID is 1 (Admin in database)
+  int _currentUserId = 1;
   var _isSearching = false;
 
   void _toggleSearch() {
@@ -29,30 +36,14 @@ class _AppChatsState extends State<AppChats> {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    Client().getUser(
-      onSuccess: (user) {
-        currentUserId = user.id;
-      },
-      onError: (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              e.response?.data["message"] ?? e.message,
-            ),
-          ),
-        );
-      },
-    );
-
+  void _getData() {
+    // Get the latest messages from each user
     final Map<int, Map<String, dynamic>> latestMessages = {};
 
     Server().getAllMessages(
       onSuccess: (messages) {
         for (var message in messages) {
-          final otherUserId = message.senderId == currentUserId
+          final otherUserId = message.senderId == _currentUserId
               ? message.receiverId
               : message.senderId;
 
@@ -102,6 +93,53 @@ class _AppChatsState extends State<AppChats> {
         );
       },
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Get the current user
+    Client().getUser(
+      onSuccess: (user) {
+        setState(() {
+          _currentUserId = user.id;
+        });
+      },
+      onError: (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.response?.data["message"] ?? e.message,
+            ),
+          ),
+        );
+      },
+    );
+
+    _getData();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _asyncInitState();
+    });
+  }
+
+  _asyncInitState() async {
+    await _channel.ready;
+
+    String token = await Client().getToken();
+
+    _channel.sink.add("Bearer $token");
+    _channel.stream.listen((data) {
+      _chats.clear();
+      _getData();
+    });
+  }
+
+  @override
+  void dispose() {
+    _channel.sink.close();
+    super.dispose();
   }
 
   @override
@@ -167,13 +205,17 @@ class _AppChatsState extends State<AppChats> {
           ),
         ],
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () async {
-      //     var token = await Client().getToken();
-      //     print(token);
-      //   },
-      //   child: const Icon(Icons.add),
-      // ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const PageNew(),
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
