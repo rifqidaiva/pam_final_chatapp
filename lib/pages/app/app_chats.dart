@@ -4,9 +4,13 @@ import 'package:pam_final_client/components/popup.dart';
 import 'package:pam_final_client/components/profile.dart';
 import 'package:pam_final_client/instances/client.dart';
 import 'package:pam_final_client/instances/server.dart';
+import 'package:pam_final_client/pages/app/page_conversation.dart';
+import 'package:pam_final_client/pages/page_login.dart';
 
 class AppChats extends StatefulWidget {
-  const AppChats({super.key});
+  final WebSocket webSocket;
+
+  const AppChats({super.key, required this.webSocket});
 
   @override
   State<AppChats> createState() => _AppChatsState();
@@ -15,6 +19,7 @@ class AppChats extends StatefulWidget {
 class _AppChatsState extends State<AppChats> {
   final TextEditingController _searchController = TextEditingController();
   final List<Map<String, dynamic>> _chats = [];
+  late int currentUserId;
   var _isSearching = false;
 
   void _toggleSearch() {
@@ -29,67 +34,65 @@ class _AppChatsState extends State<AppChats> {
   @override
   void initState() {
     super.initState();
+    Client().getUser(
+      onSuccess: (user) {
+        currentUserId = user.id;
+      },
+      onError: (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.response?.data["message"] ?? e.message,
+            ),
+          ),
+        );
+      },
+    );
+
+    final Map<int, Map<String, dynamic>> latestMessages = {};
+
     Server().getAllMessages(
-      onSucess: (messages) {
-        Map<String, Map<String, dynamic>> latestMessages = {};
+      onSuccess: (messages) {
         for (var message in messages) {
-          if (latestMessages.containsKey(message.senderId.toString())) {
-            if (DateTime.parse(
-                    latestMessages[message.senderId.toString()]!["timestamp"])
-                .isBefore(DateTime.parse(message.timestamp))) {
-              latestMessages[message.senderId.toString()] = {
-                "message": message.message,
-                "timestamp": message.timestamp,
-              };
-            }
-          } else {
-            latestMessages[message.senderId.toString()] = {
-              "message": message.message,
+          final otherUserId = message.senderId == currentUserId
+              ? message.receiverId
+              : message.senderId;
+
+          if (!latestMessages.containsKey(otherUserId) ||
+              message.id! > latestMessages[otherUserId]!["id"]) {
+            latestMessages[otherUserId] = {
+              "id": message.id,
+              "user_id": otherUserId,
+              "message": message.content,
               "timestamp": message.timestamp,
             };
           }
         }
 
-        Client().getUser(
-          onSucess: (user) {
-            latestMessages.forEach((senderId, messageData) {
-              if (user.id == int.parse(senderId)) {
-                return;
-              }
-
-              Server().getUserById(
-                id: int.parse(senderId),
-                onSucess: (user) {
-                  setState(() {
-                    _chats.add({
-                      "name": user.name,
-                      "message": messageData["message"],
-                      "timestamp": messageData["timestamp"],
-                    });
-                  });
-                },
-                onError: (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        e.response?.data["message"] ?? e.message,
-                      ),
-                    ),
-                  );
-                },
-              );
-            });
-          },
-          onError: (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  e.response?.data["message"] ?? e.message,
+        latestMessages.forEach((otherUserId, messageData) {
+          Server().getUserById(
+            id: otherUserId,
+            onSuccess: (user) {
+              setState(() {
+                _chats.add({
+                  "user_id": user.id,
+                  "name": user.name,
+                  "message": messageData["message"],
+                  "timestamp": messageData["timestamp"],
+                });
+              });
+            },
+            onError: (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    e.response?.data["message"] ?? e.message,
+                  ),
                 ),
-              ),
-            );
-          },
-        );
+              );
+            },
+          );
+        });
       },
       onError: (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -123,16 +126,18 @@ class _AppChatsState extends State<AppChats> {
             CPopup(
               menuChildren: [
                 ListTile(
-                  title: const Text("Pengaturan"),
-                  leading: const Icon(Icons.settings),
-                  visualDensity: VisualDensity.compact,
-                  onTap: () {},
-                ),
-                ListTile(
                   title: const Text("Keluar"),
                   leading: const Icon(Icons.logout),
                   visualDensity: VisualDensity.compact,
-                  onTap: () {},
+                  onTap: () {
+                    Client().removeToken();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const Pagelogin(),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -148,19 +153,30 @@ class _AppChatsState extends State<AppChats> {
                   name: _chats[index]["name"],
                   message: _chats[index]["message"],
                   timestamp: _chats[index]["timestamp"],
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PageConversation(
+                          webSocket: widget.webSocket,
+                          otherUserId: _chats[index]["user_id"],
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          var token = await Client().getToken();
-          print(token);
-        },
-        child: const Icon(Icons.add),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () async {
+      //     var token = await Client().getToken();
+      //     print(token);
+      //   },
+      //   child: const Icon(Icons.add),
+      // ),
     );
   }
 }
@@ -169,12 +185,14 @@ class ChatCard extends StatelessWidget {
   final String name;
   final String message;
   final String timestamp;
+  final void Function() onTap;
 
   const ChatCard({
     super.key,
     required this.name,
     required this.message,
     required this.timestamp,
+    required this.onTap,
   });
 
   @override
@@ -184,6 +202,7 @@ class ChatCard extends StatelessWidget {
       subtitle: Text(message, maxLines: 1, overflow: TextOverflow.ellipsis),
       trailing: Text(timestamp),
       leading: CProfileAvatar(text: name),
+      onTap: onTap,
     );
   }
 }

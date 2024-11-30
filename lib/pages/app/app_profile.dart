@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pam_final_client/components/profile.dart';
 import 'package:pam_final_client/components/text.dart';
+import 'package:pam_final_client/instances/client.dart';
+import 'package:pam_final_client/pages/page_login.dart';
 
 class AppProfile extends StatefulWidget {
   const AppProfile({super.key});
@@ -10,9 +12,34 @@ class AppProfile extends StatefulWidget {
 }
 
 class _AppProfileState extends State<AppProfile> {
-  final userID = 1;
-  final userName = "User 1";
-  final userEmail = "user@gmail.com";
+  late int userId;
+  late String userName;
+  late String userEmail;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Get the current user
+    Client().getUser(
+      onSuccess: (user) {
+        setState(() {
+          userId = user.id;
+          userName = user.name;
+          userEmail = user.email;
+        });
+      },
+      onError: (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.response?.data["message"] ?? e.message,
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,17 +64,25 @@ class _AppProfileState extends State<AppProfile> {
               ),
             ),
             const SizedBox(height: 30),
-            ListTile(
-              title: const Text("Pengaturan"),
-              leading: const Icon(Icons.settings),
-              visualDensity: VisualDensity.compact,
-              onTap: () {},
-            ),
+            // ListTile(
+            //   title: const Text("Pengaturan"),
+            //   leading: const Icon(Icons.settings),
+            //   visualDensity: VisualDensity.compact,
+            //   onTap: () {},
+            // ),
             ListTile(
               title: const Text("Keluar"),
               leading: const Icon(Icons.logout),
               visualDensity: VisualDensity.compact,
-              onTap: () {},
+              onTap: () {
+                Client().removeToken();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const Pagelogin(),
+                  ),
+                );
+              },
             ),
           ],
         ),

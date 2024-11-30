@@ -8,9 +8,9 @@ class Client {
     prefs.setString("token", token);
   }
 
-  Future<String?> getToken() async {
+  Future<String> getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString("token");
+    return prefs.getString("token") ?? "";
   }
 
   void removeToken() async {
@@ -19,19 +19,29 @@ class Client {
   }
 
   void getUser({
-    required Function(User) onSucess,
+    required Function(User) onSuccess,
     required Function(DioException) onError,
   }) async {
     var token = await getToken();
 
     return Server().getUserFromToken(
-      token: token ?? "",
-      onSucess: (user) {
-        onSucess(user);
+      token: token,
+      onSuccess: (user) {
+        onSuccess(user);
       },
       onError: (e) {
         onError(e);
       },
     );
+  }
+
+  Future<void> setIsListening(bool isListening) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("isListening", isListening.toString());
+  }
+
+  Future<bool> getIsListening() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString("isListening") == "true";
   }
 }

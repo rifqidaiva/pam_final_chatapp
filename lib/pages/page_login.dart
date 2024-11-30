@@ -56,7 +56,7 @@ class _PageloginState extends State<Pagelogin> {
                   Server().login(
                     email: _emailController.text,
                     password: _passwordController.text,
-                    onSucess: (token) {
+                    onSuccess: (token) {
                       Client().setToken(token);
 
                       Navigator.pushReplacement(

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:pam_final_client/instances/client.dart';
@@ -17,17 +19,28 @@ class Server {
   }
 
   // MARK: /ws
-  /// Connect to WebSocket
-  WebSocketChannel ws() {
-    final wsUrl = Uri.parse('ws://localhost:8080/ws');
-    return WebSocketChannel.connect(wsUrl);
-  }
+  /// Connect to WebSocket server
+  // void ws({
+  //   required Function(WebSocketChannel) onSuccess,
+  //   required Function(Object) onError,
+  // }) async {
+  //   try {
+  //     final wsUrl = Uri.parse('ws://localhost:8080/ws');
+  //     final channel = WebSocketChannel.connect(wsUrl);
+
+  //     await channel.ready;
+
+  //     onSuccess(channel);
+  //   } catch (e) {
+  //     onError(e);
+  //   }
+  // }
 
   // MARK: /login
   void login({
     required String email,
     required String password,
-    required Function(String) onSucess,
+    required Function(String) onSuccess,
     required Function(DioException) onError,
   }) async {
     try {
@@ -40,7 +53,7 @@ class Server {
       );
 
       if (response.statusCode == 200) {
-        onSucess(response.data["token"]);
+        onSuccess(response.data["token"]);
       } else {
         onError(DioException(
           requestOptions: response.requestOptions,
@@ -59,7 +72,7 @@ class Server {
     required String email,
     required String password,
     required String name,
-    required Function onSucess,
+    required Function onSuccess,
     required Function(DioException) onError,
   }) async {
     try {
@@ -73,7 +86,7 @@ class Server {
       );
 
       if (response.statusCode == 200) {
-        onSucess();
+        onSuccess();
       } else {
         onError(DioException(
           requestOptions: response.requestOptions,
@@ -91,7 +104,7 @@ class Server {
   /// Get user data from token
   void getUserFromToken({
     required String token,
-    required Function(User) onSucess,
+    required Function(User) onSuccess,
     required Function(DioException) onError,
   }) async {
     try {
@@ -105,7 +118,7 @@ class Server {
       );
 
       if (response.statusCode == 200) {
-        onSucess(User.fromJson(response.data));
+        onSuccess(User.fromJson(response.data));
       } else {
         onError(DioException(
           requestOptions: response.requestOptions,
@@ -124,11 +137,11 @@ class Server {
   /// Get user data by id
   void getUserById({
     required int id,
-    required Function(User) onSucess,
+    required Function(User) onSuccess,
     required Function(DioException) onError,
   }) async {
     try {
-      String token = await Client().getToken() ?? "";
+      String token = await Client().getToken();
 
       var response = await _dio.get(
         "/user",
@@ -143,7 +156,7 @@ class Server {
       );
 
       if (response.statusCode == 200) {
-        onSucess(User.fromJson(response.data));
+        onSuccess(User.fromJson(response.data));
       } else {
         onError(DioException(
           requestOptions: response.requestOptions,
@@ -161,11 +174,11 @@ class Server {
   // MARK: /users
   /// Get all users except the current user
   void getUsers({
-    required Function(List<User>) onSucess,
+    required Function(List<User>) onSuccess,
     required Function(DioException) onError,
   }) async {
     try {
-      String token = await Client().getToken() ?? "";
+      String token = await Client().getToken();
 
       var response = await _dio.get(
         "/users",
@@ -181,7 +194,7 @@ class Server {
         for (var user in response.data) {
           users.add(User.fromJson(user));
         }
-        onSucess(users);
+        onSuccess(users);
       } else {
         onError(DioException(
           requestOptions: response.requestOptions,
@@ -199,17 +212,17 @@ class Server {
   // MARK: /conversation
   /// Get conversation between current user and another user
   void getConversation({
-    required int userId,
-    required Function(List<Message>) onSucess,
+    required int otherUserId,
+    required Function(List<Message>) onSuccess,
     required Function(DioException) onError,
   }) async {
     try {
-      String token = await Client().getToken() ?? "";
+      String token = await Client().getToken();
 
       var response = await _dio.get(
         "/conversation",
         queryParameters: {
-          "userId": userId,
+          "other_user_id": otherUserId,
         },
         options: Options(
           headers: {
@@ -223,7 +236,7 @@ class Server {
         for (var message in response.data) {
           messages.add(Message.fromJson(message));
         }
-        onSucess(messages);
+        onSuccess(messages);
       } else {
         onError(DioException(
           requestOptions: response.requestOptions,
@@ -241,11 +254,11 @@ class Server {
   // MARK: /allmessages
   /// Get all messages from the current user
   void getAllMessages({
-    required Function(List<Message>) onSucess,
+    required Function(List<Message>) onSuccess,
     required Function(DioException) onError,
   }) async {
     try {
-      String token = await Client().getToken() ?? "";
+      String token = await Client().getToken();
 
       var response = await _dio.get(
         "/allmessages",
@@ -261,7 +274,7 @@ class Server {
         for (var message in response.data) {
           messages.add(Message.fromJson(message));
         }
-        onSucess(messages);
+        onSuccess(messages);
       } else {
         onError(DioException(
           requestOptions: response.requestOptions,
@@ -274,6 +287,75 @@ class Server {
     } on DioException catch (e) {
       onError(e);
     }
+  }
+}
+
+// MARK: WebSocket
+/// WebSocket class to connect to the server
+class WebSocket {
+  static final WebSocket _instance = WebSocket._internal();
+  late WebSocketChannel channel;
+  StreamSubscription? _subscription;
+  bool isClosed = false;
+
+  factory WebSocket() {
+    return _instance;
+  }
+
+  WebSocket._internal();
+
+  void connect() {
+    isClosed = false;
+    final wsUrl = Uri.parse('ws://localhost:8080/ws');
+    channel = WebSocketChannel.connect(wsUrl);
+  }
+
+  void sendMessage(String message) {
+    if (!isClosed) {
+      channel.sink.add(message);
+    }
+  }
+
+  void listen({
+    required Function(String) onMessage,
+  }) async {
+    var isListening = await Client().getIsListening();
+
+    if (isClosed || isListening) return; // Mencegah double listener
+    await Client().setIsListening(true);
+
+    _subscription = channel.stream.listen(
+      (message) {
+        if (!isClosed) {
+          onMessage(message);
+        }
+      },
+      onDone: () async {
+        await Client()
+            .setIsListening(false); // Set isListening ke false jika selesai
+      },
+      onError: (e) async {
+        await Client().setIsListening(
+            false); // Set isListening ke false jika terjadi error
+      },
+    );
+  }
+
+  void stopListening() async {
+    var isListening = await Client().getIsListening();
+
+    if (!isListening) return;
+
+    await Client().setIsListening(false);
+
+    _subscription?.cancel();
+    _subscription = null;
+  }
+
+  void close() {
+    isClosed = true;
+    stopListening();
+    channel.sink.close(1000, "Normal closure");
   }
 }
 
@@ -301,18 +383,18 @@ class User {
 }
 
 class Message {
-  int id;
+  int? id;
   int senderId;
   int receiverId;
-  String message;
-  String timestamp;
+  String content;
+  String? timestamp;
 
   Message({
-    required this.id,
+    this.id,
     required this.senderId,
     required this.receiverId,
-    required this.message,
-    required this.timestamp,
+    required this.content,
+    this.timestamp,
   });
 
   factory Message.fromJson(Map<String, dynamic> json) {
@@ -320,8 +402,21 @@ class Message {
       id: json["id"],
       senderId: json["sender_id"],
       receiverId: json["receiver_id"],
-      message: json["content"],
+      content: json["content"],
       timestamp: json["timestamp"],
     );
+  }
+
+  // to json string method
+  String toJson() {
+    return """
+    {
+      "id": $id,
+      "sender_id": $senderId,
+      "receiver_id": $receiverId,
+      "content": "$content",
+      "timestamp": "$timestamp"
+    }
+    """;
   }
 }

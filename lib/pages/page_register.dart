@@ -83,7 +83,7 @@ class _PageRegisterState extends State<PageRegister> {
                     email: _emailController.text,
                     password: _passwordController.text,
                     name: _nameController.text,
-                    onSucess: () {
+                    onSuccess: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text("registrasi berhasil"),
