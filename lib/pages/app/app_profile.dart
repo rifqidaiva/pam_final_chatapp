@@ -13,8 +13,8 @@ class AppProfile extends StatefulWidget {
 
 class _AppProfileState extends State<AppProfile> {
   late int userId;
-  late String userName;
-  late String userEmail;
+  String userName = "";
+  String userEmail = "";
 
   @override
   void initState() {

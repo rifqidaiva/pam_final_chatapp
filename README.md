@@ -1,4 +1,4 @@
-# pam_final_client
+# pam_final_chatapp
 
 A new Flutter project.
 

@@ -4,14 +4,13 @@ import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:pam_final_client/components/profile.dart';
 import 'package:pam_final_client/instances/client.dart';
 import 'package:pam_final_client/instances/server.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class PageConversation extends StatefulWidget {
   final int otherUserId;
-  final WebSocket webSocket;
 
   const PageConversation({
     super.key,
-    required this.webSocket,
     required this.otherUserId,
   });
 
@@ -21,9 +20,13 @@ class PageConversation extends StatefulWidget {
 
 class _PageConversationState extends State<PageConversation> {
   final List<Message> _conversation = [];
-  late int _currentUserId;
+  final _channel = WebSocketChannel.connect(
+    Uri.parse('ws://localhost:8080/ws'),
+  );
+
+  // Default current user ID is 1 (Admin)
+  int _currentUserId = 1;
   late User _otherUser;
-  late bool _isListening;
 
   @override
   void initState() {
@@ -85,38 +88,30 @@ class _PageConversationState extends State<PageConversation> {
       },
     );
 
-    var isListeningFuture = Client().getIsListening();
-    isListeningFuture.then((value) {
-      _isListening = value;
-
-      print(_isListening);
-      if (!_isListening) {
-        widget.webSocket.listen(
-          onMessage: (message) {
-            final newMessage = Message.fromJson(jsonDecode(message));
-            setState(() {
-              _conversation.add(newMessage);
-            });
-          },
-        );
-        // print(_isListening);
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _asyncInitState();
     });
-
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   _asyncInitState();
-    // });
   }
 
-  // _asyncInitState() async {
-  //   _isListening = await Client().getIsListening();
-  // }
+  _asyncInitState() async {
+    await _channel.ready;
+
+    String token = await Client().getToken();
+
+    _channel.sink.add("Bearer $token");
+    _channel.stream.listen((data) {
+      final jsonData = jsonDecode(data);
+      final message = Message.fromJson(jsonData);
+
+      setState(() {
+        _conversation.add(message);
+      });
+    });
+  }
 
   @override
   void dispose() {
-    // Close the WebSocket connection when the page is disposed
-    // final webSocket = WebSocket();
-    widget.webSocket.stopListening();
+    _channel.sink.close();
     super.dispose();
   }
 
@@ -151,7 +146,7 @@ class _PageConversationState extends State<PageConversation> {
             messageBarHintText: "Ketik pesan...",
             onSend: (message) {
               setState(() {
-                widget.webSocket.sendMessage(
+                _channel.sink.add(
                   Message(
                     senderId: _currentUserId,
                     receiverId: _otherUser.id,

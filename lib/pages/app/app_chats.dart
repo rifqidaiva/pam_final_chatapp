@@ -8,9 +8,7 @@ import 'package:pam_final_client/pages/app/page_conversation.dart';
 import 'package:pam_final_client/pages/page_login.dart';
 
 class AppChats extends StatefulWidget {
-  final WebSocket webSocket;
-
-  const AppChats({super.key, required this.webSocket});
+  const AppChats({super.key});
 
   @override
   State<AppChats> createState() => _AppChatsState();
@@ -158,7 +156,6 @@ class _AppChatsState extends State<AppChats> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => PageConversation(
-                          webSocket: widget.webSocket,
                           otherUserId: _chats[index]["user_id"],
                         ),
                       ),
