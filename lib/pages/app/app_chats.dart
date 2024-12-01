@@ -239,7 +239,10 @@ class ChatCard extends StatelessWidget {
     return ListTile(
       title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Text(message, maxLines: 1, overflow: TextOverflow.ellipsis),
-      trailing: Text(timestamp),
+      trailing: Text(
+        Client().convertUtcToWib(timestamp),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+      ),
       leading: CProfileAvatar(text: name),
       onTap: onTap,
     );

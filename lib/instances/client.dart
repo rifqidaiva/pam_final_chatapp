@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:intl/intl.dart';
 import 'package:pam_final_client/instances/server.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -35,13 +36,15 @@ class Client {
     );
   }
 
-  Future<void> setIsListening(bool isListening) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString("isListening", isListening.toString());
-  }
+  /// Convert UTC date to WIB date
+  String convertUtcToWib(String utcDate) {
+    try {
+      DateTime utcDateTime = DateTime.parse(utcDate);
+      DateTime wibDateTime = utcDateTime.add(const Duration(hours: 7));
 
-  Future<bool> getIsListening() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString("isListening") == "true";
+      return DateFormat("dd MMM yyyy - HH:mm").format(wibDateTime);
+    } catch (e) {
+      return "Format tanggal tidak valid";
+    }
   }
 }

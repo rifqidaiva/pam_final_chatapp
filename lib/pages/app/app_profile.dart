@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pam_final_client/components/profile.dart';
 import 'package:pam_final_client/components/text.dart';
 import 'package:pam_final_client/instances/client.dart';
+import 'package:pam_final_client/pages/app/page_settings.dart';
 import 'package:pam_final_client/pages/page_login.dart';
 
 class AppProfile extends StatefulWidget {
@@ -64,12 +65,19 @@ class _AppProfileState extends State<AppProfile> {
               ),
             ),
             const SizedBox(height: 30),
-            // ListTile(
-            //   title: const Text("Pengaturan"),
-            //   leading: const Icon(Icons.settings),
-            //   visualDensity: VisualDensity.compact,
-            //   onTap: () {},
-            // ),
+            ListTile(
+              title: const Text("Pengaturan"),
+              leading: const Icon(Icons.settings),
+              visualDensity: VisualDensity.compact,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PageSettings(),
+                  ),
+                );
+              },
+            ),
             ListTile(
               title: const Text("Keluar"),
               leading: const Icon(Icons.logout),

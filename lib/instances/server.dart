@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:dio/dio.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:pam_final_client/instances/client.dart';
 
 class Server {
@@ -17,24 +14,6 @@ class Server {
     _dio.options.connectTimeout = const Duration(seconds: 5);
     _dio.options.receiveTimeout = const Duration(seconds: 3);
   }
-
-  // MARK: /ws
-  /// Connect to WebSocket server
-  // void ws({
-  //   required Function(WebSocketChannel) onSuccess,
-  //   required Function(Object) onError,
-  // }) async {
-  //   try {
-  //     final wsUrl = Uri.parse('ws://localhost:8080/ws');
-  //     final channel = WebSocketChannel.connect(wsUrl);
-
-  //     await channel.ready;
-
-  //     onSuccess(channel);
-  //   } catch (e) {
-  //     onError(e);
-  //   }
-  // }
 
   // MARK: /login
   void login({
@@ -287,75 +266,6 @@ class Server {
     } on DioException catch (e) {
       onError(e);
     }
-  }
-}
-
-// MARK: WebSocket
-/// WebSocket class to connect to the server
-class WebSocket {
-  static final WebSocket _instance = WebSocket._internal();
-  late WebSocketChannel channel;
-  StreamSubscription? _subscription;
-  bool isClosed = false;
-
-  factory WebSocket() {
-    return _instance;
-  }
-
-  WebSocket._internal();
-
-  void connect() {
-    isClosed = false;
-    final wsUrl = Uri.parse('ws://localhost:8080/ws');
-    channel = WebSocketChannel.connect(wsUrl);
-  }
-
-  void sendMessage(String message) {
-    if (!isClosed) {
-      channel.sink.add(message);
-    }
-  }
-
-  void listen({
-    required Function(String) onMessage,
-  }) async {
-    var isListening = await Client().getIsListening();
-
-    if (isClosed || isListening) return; // Mencegah double listener
-    await Client().setIsListening(true);
-
-    _subscription = channel.stream.listen(
-      (message) {
-        if (!isClosed) {
-          onMessage(message);
-        }
-      },
-      onDone: () async {
-        await Client()
-            .setIsListening(false); // Set isListening ke false jika selesai
-      },
-      onError: (e) async {
-        await Client().setIsListening(
-            false); // Set isListening ke false jika terjadi error
-      },
-    );
-  }
-
-  void stopListening() async {
-    var isListening = await Client().getIsListening();
-
-    if (!isListening) return;
-
-    await Client().setIsListening(false);
-
-    _subscription?.cancel();
-    _subscription = null;
-  }
-
-  void close() {
-    isClosed = true;
-    stopListening();
-    channel.sink.close(1000, "Normal closure");
   }
 }
 

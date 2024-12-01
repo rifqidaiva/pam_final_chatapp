@@ -19,6 +19,7 @@ class PageConversation extends StatefulWidget {
 }
 
 class _PageConversationState extends State<PageConversation> {
+  final ScrollController _scrollController = ScrollController();
   final List<Message> _conversation = [];
   final _channel = WebSocketChannel.connect(
     Uri.parse('ws://localhost:8080/ws'),
@@ -103,14 +104,37 @@ class _PageConversationState extends State<PageConversation> {
       final jsonData = jsonDecode(data);
       final message = Message.fromJson(jsonData);
 
+      // Add timestamp to the message because the server doesn't send it
+      message.timestamp = DateTime.now().toUtc().toString();
+
+      _addMessage(message);
+    });
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  void _addMessage(Message message) {
+    if (mounted) {
       setState(() {
         _conversation.add(message);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollToBottom();
+        });
       });
-    });
+    }
   }
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _channel.sink.close();
     super.dispose();
   }
@@ -127,6 +151,7 @@ class _PageConversationState extends State<PageConversation> {
           Padding(
             padding: const EdgeInsets.only(bottom: 80),
             child: ListView.builder(
+              controller: _scrollController,
               itemCount: _conversation.length,
               itemBuilder: (context, index) {
                 final chat = _conversation[index];
@@ -176,18 +201,29 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BubbleSpecialThree(
-      text: chat.content,
-      isSender: chat.senderId == currentUserId,
-      color: chat.senderId == currentUserId
-          ? Theme.of(context).colorScheme.primary
-          : Theme.of(context).colorScheme.secondary,
-      textStyle: TextStyle(
-        color: chat.senderId == currentUserId
-            ? Theme.of(context).colorScheme.onPrimary
-            : Theme.of(context).colorScheme.onSecondary,
-      ),
-      tail: tail,
+    return Column(
+      children: [
+        Text(
+          Client().convertUtcToWib(chat.timestamp ?? ""),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontSize: 12,
+          ),
+        ),
+        BubbleSpecialThree(
+          text: chat.content,
+          isSender: chat.senderId == currentUserId,
+          color: chat.senderId == currentUserId
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.secondary,
+          textStyle: TextStyle(
+            color: chat.senderId == currentUserId
+                ? Theme.of(context).colorScheme.onPrimary
+                : Theme.of(context).colorScheme.onSecondary,
+          ),
+          tail: tail,
+        ),
+      ],
     );
   }
 }
