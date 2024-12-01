@@ -40,7 +40,7 @@ class _PageNewState extends State<PageNew> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("New Chat"),
+        title: const Text("Pesan Baru"),
       ),
       body: ListView.builder(
         itemCount: _users.length,
