@@ -87,7 +87,7 @@ class _AppProfileState extends State<AppProfile> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const Pagelogin(),
+                    builder: (context) => const PageLogin(),
                   ),
                 );
               },

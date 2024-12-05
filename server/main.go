@@ -13,6 +13,7 @@ func main() {
 	mux.HandleFunc("/register", registerEndpoint)         // Register endpoint (POST)
 	mux.HandleFunc("/users", usersEndpoint)               // Get all users except the current user (GET)
 	mux.HandleFunc("/user", userEndpoint)                 // Get the user by id if provided in the query or the current user (GET)
+	mux.HandleFunc("/preferences", preferencesEndpoint)   // Get preferences of the current user (GET), Update preferences of the current user (PUT)
 	mux.HandleFunc("/conversation", conversationEndpoint) // Get conversation between current user and another user (GET)
 	mux.HandleFunc("/allmessages", allMessagesEndpoint)   // Get all messages of a user (GET)
 	mux.HandleFunc("/ws", wsEndpoint)                     // Websocket endpoint
@@ -46,9 +47,15 @@ func init() {
 		name TEXT
 	);
 
-	INSERT INTO users (email, password, name) VALUES ("admin@gmail.com", "$2a$10$Sffp4bQMpMVx9vTnvw6ONOBEbYwEfZTq7Z.gphfBi8kiXuBOGS7Uy", "Admin");
-	INSERT INTO users (email, password, name) VALUES ("aiken@gmail.com", "$2a$10$Q0FrZosG.ekVpyGz41C4g.nf6ks5G6hDWItTmLhMyRhLwq/1l2rI6", "Aiken");
-	INSERT INTO users (email, password, name) VALUES ("wahyu@gmail.com", "$2a$10$mLykOmNSkp02xP8t4zQfzeQh65.6.BHLhp2VaB3KfyfAVpVO9W.hG", "Wahyu");
+	CREATE TABLE IF NOT EXISTS preferences (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id INTEGER,
+		mode TEXT,
+		theme TEXT,
+		time_zone TEXT,
+		is_premium BOOLEAN,
+		FOREIGN KEY (user_id) REFERENCES users(id)
+	);
 
 	CREATE TABLE IF NOT EXISTS messages (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -59,6 +66,14 @@ func init() {
 		FOREIGN KEY (sender_id) REFERENCES users(id),
 		FOREIGN KEY (receiver_id) REFERENCES users(id)
 	);
+
+	INSERT INTO users (email, password, name) VALUES ("admin@gmail.com", "$2a$10$Sffp4bQMpMVx9vTnvw6ONOBEbYwEfZTq7Z.gphfBi8kiXuBOGS7Uy", "Admin");
+	INSERT INTO users (email, password, name) VALUES ("aiken@gmail.com", "$2a$10$Q0FrZosG.ekVpyGz41C4g.nf6ks5G6hDWItTmLhMyRhLwq/1l2rI6", "Aiken");
+	INSERT INTO users (email, password, name) VALUES ("wahyu@gmail.com", "$2a$10$mLykOmNSkp02xP8t4zQfzeQh65.6.BHLhp2VaB3KfyfAVpVO9W.hG", "Wahyu");
+
+	INSERT INTO preferences (user_id, mode, theme, time_zone, is_premium) VALUES (1, "light", "default", "WIB", 1);
+	INSERT INTO preferences (user_id, mode, theme, time_zone, is_premium) VALUES (2, "light", "default", "WIB", 0);
+	INSERT INTO preferences (user_id, mode, theme, time_zone, is_premium) VALUES (3, "light", "default", "WIB", 0);
 
 	INSERT INTO messages (sender_id, receiver_id, content) VALUES (2, 3, "Hi Aiken, Wahyu here. How's it going?");
 	INSERT INTO messages (sender_id, receiver_id, content) VALUES (3, 2, "Hey Wahyu, Aiken here. All good, you?");

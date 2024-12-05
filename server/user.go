@@ -153,6 +153,14 @@ func registerEndpoint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Insert default preferences
+	_, err = db.Exec("INSERT INTO preferences (user_id, mode, theme, time_zone, is_premium) VALUES (?, 'light', 'default', 'WIB', 0)", count+1)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"message": "` + err.Error() + `"}`))
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
 

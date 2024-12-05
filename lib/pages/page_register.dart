@@ -93,7 +93,7 @@ class _PageRegisterState extends State<PageRegister> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const Pagelogin(),
+                          builder: (context) => const PageLogin(),
                         ),
                       );
                     },
@@ -115,7 +115,7 @@ class _PageRegisterState extends State<PageRegister> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const Pagelogin(),
+                      builder: (context) => const PageLogin(),
                     ),
                   );
                 },

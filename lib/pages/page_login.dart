@@ -7,14 +7,14 @@ import 'package:pam_final_client/pages/app/app.dart';
 import 'package:pam_final_client/pages/page_register.dart';
 import 'package:pam_final_client/instances/server.dart';
 
-class Pagelogin extends StatefulWidget {
-  const Pagelogin({super.key});
+class PageLogin extends StatefulWidget {
+  const PageLogin({super.key});
 
   @override
-  State<Pagelogin> createState() => _PageloginState();
+  State<PageLogin> createState() => _PageLoginState();
 }
 
-class _PageloginState extends State<Pagelogin> {
+class _PageLoginState extends State<PageLogin> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
