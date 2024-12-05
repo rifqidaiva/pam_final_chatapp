@@ -54,3 +54,49 @@ class CTextSearch extends StatelessWidget {
     );
   }
 }
+
+class CTextFieldChat extends StatelessWidget {
+  final TextEditingController controller;
+  final void Function(String) onSend;
+  final void Function() onSticker;
+
+  const CTextFieldChat({
+    super.key,
+    required this.controller,
+    required this.onSend,
+    required this.onSticker,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        IconButton(
+          icon: const Icon(Icons.emoji_emotions),
+          onPressed: () {
+            onSticker();
+          },
+        ),
+        Expanded(
+          child: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: "Ketik pesan...",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.send),
+          onPressed: () {
+            onSend(controller.text);
+            controller.clear();
+          },
+        ),
+      ],
+    );
+  }
+}

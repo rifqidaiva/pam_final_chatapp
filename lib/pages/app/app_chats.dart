@@ -29,6 +29,7 @@ class _AppChatsState extends State<AppChats> {
   final _channel = WebSocketChannel.connect(
     Uri.parse('ws://localhost:8080/ws'),
   );
+  String timeZone = "WIB";
 
   // Default current user ID is 1 (Admin in database)
   int _currentUserId = 1;
@@ -235,7 +236,7 @@ class _AppChatsState extends State<AppChats> {
   }
 }
 
-class ChatCard extends StatelessWidget {
+class ChatCard extends StatefulWidget {
   final String name;
   final String message;
   final String timestamp;
@@ -250,16 +251,39 @@ class ChatCard extends StatelessWidget {
   });
 
   @override
+  State<ChatCard> createState() => _ChatCardState();
+}
+
+class _ChatCardState extends State<ChatCard> {
+  String? _formattedTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFormattedTime();
+  }
+
+  Future<void> _loadFormattedTime() async {
+    final formattedTime =
+        await Client().convertUtcToPreference(widget.timestamp);
+    setState(() {
+      _formattedTime = formattedTime;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text(message, maxLines: 1, overflow: TextOverflow.ellipsis),
+      title: Text(widget.name,
+          style: const TextStyle(fontWeight: FontWeight.bold)),
+      subtitle:
+          Text(widget.message, maxLines: 1, overflow: TextOverflow.ellipsis),
       trailing: Text(
-        Client().convertUtcToWib(timestamp),
+        _formattedTime ?? 'Loading...',
         style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       ),
-      leading: CProfileAvatar(text: name),
-      onTap: onTap,
+      leading: CProfileAvatar(text: widget.name),
+      onTap: widget.onTap,
     );
   }
 }

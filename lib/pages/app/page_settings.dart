@@ -135,25 +135,25 @@ class _PageSettingsState extends State<PageSettings> {
                 },
               ),
             ),
-            ListTile(
-              title: const Text("Mata Uang"),
-              subtitle: const Text("Pilih mata uang aplikasi"),
-              trailing: DropdownButton(
-                items: const [
-                  DropdownMenuItem(value: "idr", child: Text("IDR")),
-                  DropdownMenuItem(value: "usd", child: Text("USD")),
-                  DropdownMenuItem(value: "eur", child: Text("EUR")),
-                  DropdownMenuItem(value: "jpy", child: Text("JPY")),
-                  DropdownMenuItem(value: "gbp", child: Text("GBP")),
-                ],
-                value: _selectedCurrency,
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCurrency = value.toString();
-                  });
-                },
-              ),
-            ),
+            // ListTile(
+            //   title: const Text("Mata Uang"),
+            //   subtitle: const Text("Pilih mata uang aplikasi"),
+            //   trailing: DropdownButton(
+            //     items: const [
+            //       DropdownMenuItem(value: "idr", child: Text("IDR")),
+            //       DropdownMenuItem(value: "usd", child: Text("USD")),
+            //       DropdownMenuItem(value: "eur", child: Text("EUR")),
+            //       DropdownMenuItem(value: "jpy", child: Text("JPY")),
+            //       DropdownMenuItem(value: "gbp", child: Text("GBP")),
+            //     ],
+            //     value: _selectedCurrency,
+            //     onChanged: (value) {
+            //       setState(() {
+            //         _selectedCurrency = value.toString();
+            //       });
+            //     },
+            //   ),
+            // ),
             const SizedBox(height: 20),
             FilledButton(
               onPressed: () {

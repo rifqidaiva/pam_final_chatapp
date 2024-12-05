@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pam_final_client/components/profile.dart';
 import 'package:pam_final_client/components/text.dart';
 import 'package:pam_final_client/instances/client.dart';
+import 'package:pam_final_client/pages/app/page_currency.dart';
 import 'package:pam_final_client/pages/app/page_settings.dart';
 import 'package:pam_final_client/pages/page_login.dart';
 
@@ -89,18 +90,31 @@ class _AppProfileState extends State<AppProfile> {
               },
             ),
             ListTile(
+              title: const Text("Konversi Mata Uang"),
+              leading: const Icon(Icons.settings),
+              visualDensity: VisualDensity.compact,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PageCurrency(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
               title: Text(
                 "Keluar",
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSecondary,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
                 ),
               ),
               leading: Icon(
                 Icons.logout,
-                color: Theme.of(context).colorScheme.onSecondary,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
               ),
               visualDensity: VisualDensity.compact,
-              tileColor: Theme.of(context).colorScheme.secondary,
+              tileColor: Theme.of(context).colorScheme.primaryContainer,
               onTap: () {
                 Client().removeToken();
 

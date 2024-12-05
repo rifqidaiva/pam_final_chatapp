@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:chat_bubbles/chat_bubbles.dart';
+import 'package:pam_final_client/components/input.dart';
 import 'package:pam_final_client/components/profile.dart';
 import 'package:pam_final_client/instances/client.dart';
 import 'package:pam_final_client/instances/server.dart';
+import 'package:pam_final_client/pages/app/page_conversation_sticker.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class PageConversation extends StatefulWidget {
@@ -19,6 +21,7 @@ class PageConversation extends StatefulWidget {
 }
 
 class _PageConversationState extends State<PageConversation> {
+  final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final List<Message> _conversation = [];
   final _channel = WebSocketChannel.connect(
@@ -146,48 +149,59 @@ class _PageConversationState extends State<PageConversation> {
         leadingWidth: 24,
         title: CProfileChat(text: _otherUser.name),
       ),
-      body: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 80),
-            child: ListView.builder(
-              controller: _scrollController,
-              itemCount: _conversation.length,
-              itemBuilder: (context, index) {
-                final chat = _conversation[index];
+      body: ListView.builder(
+        controller: _scrollController,
+        itemCount: _conversation.length,
+        itemBuilder: (context, index) {
+          final chat = _conversation[index];
 
-                // Check if the current chat is the last chat in the list
-                // or if the sender is different from the next chat
-                final tail = index == _conversation.length - 1 ||
-                    _conversation[index + 1].senderId != chat.senderId;
-                return ChatBubble(
-                    currentUserId: _currentUserId, chat: chat, tail: tail);
+          // Check if the current chat is the last chat in the list
+          // or if the sender is different from the next chat
+          final tail = index == _conversation.length - 1 ||
+              _conversation[index + 1].senderId != chat.senderId;
+          return ChatBubble(
+              currentUserId: _currentUserId, chat: chat, tail: tail);
+        },
+      ),
+      bottomNavigationBar: CTextFieldChat(
+        controller: _textController,
+        onSticker: () {
+          void onSticker(String sticker) {
+            _channel.sink.add(
+              Message(
+                senderId: _currentUserId,
+                receiverId: _otherUser.id,
+                content: sticker,
+              ).toJson(),
+            );
+          }
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return PageConversationSticker(onSticker: onSticker);
               },
             ),
-          ),
-          MessageBar(
-            sendButtonColor: Theme.of(context).colorScheme.primary,
-            messageBarColor: Theme.of(context).colorScheme.surface,
-            messageBarHintText: "Ketik pesan...",
-            onSend: (message) {
-              setState(() {
-                _channel.sink.add(
-                  Message(
-                    senderId: _currentUserId,
-                    receiverId: _otherUser.id,
-                    content: message,
-                  ).toJson(),
-                );
-              });
-            },
-          ),
-        ],
+          );
+        },
+        onSend: (message) {
+          setState(() {
+            _channel.sink.add(
+              Message(
+                senderId: _currentUserId,
+                receiverId: _otherUser.id,
+                content: message,
+              ).toJson(),
+            );
+          });
+        },
       ),
     );
   }
 }
 
-class ChatBubble extends StatelessWidget {
+class ChatBubble extends StatefulWidget {
   final Message chat;
   final bool tail;
   final int currentUserId;
@@ -200,28 +214,84 @@ class ChatBubble extends StatelessWidget {
   });
 
   @override
+  State<ChatBubble> createState() => _ChatBubbleState();
+}
+
+class _ChatBubbleState extends State<ChatBubble> {
+  String? _formattedTimestamp;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFormattedTimestamp();
+  }
+
+  Future<void> _loadFormattedTimestamp() async {
+    final formattedTime =
+        await Client().convertUtcToPreference(widget.chat.timestamp ?? "");
+    setState(() {
+      _formattedTimestamp = formattedTime;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Text(
-          Client().convertUtcToWib(chat.timestamp ?? ""),
+          _formattedTimestamp ?? 'Loading...',
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
             fontSize: 12,
           ),
         ),
-        BubbleSpecialThree(
-          text: chat.content,
-          isSender: chat.senderId == currentUserId,
-          color: chat.senderId == currentUserId
-              ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.secondary,
-          textStyle: TextStyle(
-            color: chat.senderId == currentUserId
-                ? Theme.of(context).colorScheme.onPrimary
-                : Theme.of(context).colorScheme.onSecondary,
+        if (widget.chat.content.startsWith("stickers/"))
+          StickerBubble(
+            chat: widget.chat,
+            sticker: widget.chat.content,
+            currentUserId: widget.currentUserId,
+          )
+        else
+          BubbleSpecialThree(
+            text: widget.chat.content,
+            isSender: widget.chat.senderId == widget.currentUserId,
+            color: widget.chat.senderId == widget.currentUserId
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.secondary,
+            textStyle: TextStyle(
+              color: widget.chat.senderId == widget.currentUserId
+                  ? Theme.of(context).colorScheme.onPrimary
+                  : Theme.of(context).colorScheme.onSecondary,
+            ),
+            tail: widget.tail,
           ),
-          tail: tail,
+      ],
+    );
+  }
+}
+
+class StickerBubble extends StatelessWidget {
+  final Message chat;
+  final String sticker;
+  final int currentUserId;
+
+  const StickerBubble({
+    super.key,
+    required this.chat,
+    required this.sticker,
+    required this.currentUserId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: chat.senderId == currentUserId
+          ? MainAxisAlignment.end
+          : MainAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset(sticker, width: 200),
         ),
       ],
     );
