@@ -6,7 +6,14 @@ import 'package:pam_final_client/pages/app/page_settings.dart';
 import 'package:pam_final_client/pages/page_login.dart';
 
 class AppProfile extends StatefulWidget {
-  const AppProfile({super.key});
+  final void Function(String) changeMode;
+  final void Function(String) changeTheme;
+
+  const AppProfile({
+    super.key,
+    required this.changeMode,
+    required this.changeTheme,
+  });
 
   @override
   State<AppProfile> createState() => _AppProfileState();
@@ -73,7 +80,10 @@ class _AppProfileState extends State<AppProfile> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const PageSettings(),
+                    builder: (context) => PageSettings(
+                      changeMode: widget.changeMode,
+                      changeTheme: widget.changeTheme,
+                    ),
                   ),
                 );
               },
@@ -82,21 +92,29 @@ class _AppProfileState extends State<AppProfile> {
               title: Text(
                 "Keluar",
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.onError,
+                  color: Theme.of(context).colorScheme.onSecondary,
                 ),
               ),
               leading: Icon(
                 Icons.logout,
-                color: Theme.of(context).colorScheme.onError,
+                color: Theme.of(context).colorScheme.onSecondary,
               ),
               visualDensity: VisualDensity.compact,
-              tileColor: Theme.of(context).colorScheme.error,
+              tileColor: Theme.of(context).colorScheme.secondary,
               onTap: () {
                 Client().removeToken();
+
+                // Change the mode and theme to the default
+                widget.changeMode("light");
+                widget.changeTheme("blue");
+
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const PageLogin(),
+                    builder: (context) => PageLogin(
+                      changeMode: widget.changeMode,
+                      changeTheme: widget.changeTheme,
+                    ),
                   ),
                 );
               },

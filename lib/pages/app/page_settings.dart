@@ -1,17 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:pam_final_client/instances/server.dart';
 
 class PageSettings extends StatefulWidget {
-  const PageSettings({super.key});
+  final void Function(String) changeMode;
+  final void Function(String) changeTheme;
+
+  const PageSettings({
+    super.key,
+    required this.changeMode,
+    required this.changeTheme,
+  });
 
   @override
   State<PageSettings> createState() => _PageSettingsState();
 }
 
 class _PageSettingsState extends State<PageSettings> {
+  // Default selected settings
   String _selectedMode = "light";
   String _selectedTheme = "blue";
   String _selectedTimezone = "wib";
   String _selectedCurrency = "idr";
+  bool _isPremium = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Get the selected settings
+    Server().getPreferences(
+      onSuccess: (preferences) {
+        setState(() {
+          _selectedMode = preferences.mode;
+          _selectedTheme = preferences.theme;
+          _selectedTimezone = preferences.timeZone;
+          _selectedCurrency = preferences.currency;
+          _isPremium = preferences.isPremium;
+        });
+      },
+      onError: (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.response?.data["message"] ?? e.message,
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,14 +88,14 @@ class _PageSettingsState extends State<PageSettings> {
                     ),
                   ),
                   DropdownMenuItem(
-                    value: "red",
+                    value: "green",
                     child: Text(
                       "Hijau",
                       style: TextStyle(color: Colors.green),
                     ),
                   ),
                   DropdownMenuItem(
-                    value: "green",
+                    value: "red",
                     child: Text(
                       "Merah",
                       style: TextStyle(color: Colors.red),
@@ -120,7 +157,34 @@ class _PageSettingsState extends State<PageSettings> {
             const SizedBox(height: 20),
             FilledButton(
               onPressed: () {
-                // save the selected settings
+                Server().updatePreferences(
+                  preferences: Preferences(
+                    mode: _selectedMode,
+                    theme: _selectedTheme,
+                    timeZone: _selectedTimezone,
+                    currency: _selectedCurrency,
+                    isPremium: _isPremium,
+                  ),
+                  onSuccess: () {
+                    widget.changeMode(_selectedMode);
+                    widget.changeTheme(_selectedTheme);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Pengaturan berhasil disimpan"),
+                      ),
+                    );
+                  },
+                  onError: (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          e.response?.data["message"] ?? e.message,
+                        ),
+                      ),
+                    );
+                  },
+                );
               },
               child: const Text("Simpan"),
             ),

@@ -6,7 +6,14 @@ import 'package:pam_final_client/pages/page_login.dart';
 import 'package:pam_final_client/instances/server.dart';
 
 class PageRegister extends StatefulWidget {
-  const PageRegister({super.key});
+  final void Function(String) changeMode;
+  final void Function(String) changeTheme;
+
+  const PageRegister({
+    super.key,
+    required this.changeMode,
+    required this.changeTheme,
+  });
 
   @override
   State<PageRegister> createState() => _PageRegisterState();
@@ -93,7 +100,10 @@ class _PageRegisterState extends State<PageRegister> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const PageLogin(),
+                          builder: (context) => PageLogin(
+                            changeMode: widget.changeMode,
+                            changeTheme: widget.changeTheme,
+                          ),
                         ),
                       );
                     },
@@ -115,7 +125,10 @@ class _PageRegisterState extends State<PageRegister> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const PageLogin(),
+                      builder: (context) => PageLogin(
+                        changeMode: widget.changeMode,
+                        changeTheme: widget.changeTheme,
+                      ),
                     ),
                   );
                 },

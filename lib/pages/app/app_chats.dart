@@ -10,7 +10,14 @@ import 'package:pam_final_client/pages/page_login.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class AppChats extends StatefulWidget {
-  const AppChats({super.key});
+  final void Function(String) changeMode;
+  final void Function(String) changeTheme;
+
+  const AppChats({
+    super.key,
+    required this.changeMode,
+    required this.changeTheme,
+  });
 
   @override
   State<AppChats> createState() => _AppChatsState();
@@ -167,10 +174,18 @@ class _AppChatsState extends State<AppChats> {
                   visualDensity: VisualDensity.compact,
                   onTap: () {
                     Client().removeToken();
+
+                    // Change mode and theme to default
+                    widget.changeMode("light");
+                    widget.changeTheme("blue");
+
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const PageLogin(),
+                        builder: (context) => PageLogin(
+                          changeMode: widget.changeMode,
+                          changeTheme: widget.changeTheme,
+                        ),
                       ),
                     );
                   },

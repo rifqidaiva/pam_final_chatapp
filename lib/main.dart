@@ -8,8 +8,43 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Color _colorSchemeSeed = Colors.blue;
+  ThemeMode _themeMode = ThemeMode.light;
+
+  void _changeMode(String mode) {
+    setState(() {
+      _themeMode = mode == "dark" ? ThemeMode.dark : ThemeMode.light;
+    });
+  }
+
+  void _changeTheme(String color) {
+    setState(() {
+      switch (color) {
+        case "blue":
+          _colorSchemeSeed = Colors.blue;
+          break;
+        case "green":
+          _colorSchemeSeed = Colors.green;
+          break;
+        case "red":
+          _colorSchemeSeed = Colors.red;
+          break;
+        case "yellow":
+          _colorSchemeSeed = Colors.yellow;
+          break;
+        default:
+          _colorSchemeSeed = Colors.blue;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,16 +53,16 @@ class MyApp extends StatelessWidget {
       title: "Tugas Akhir PAM",
       theme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: Colors.blue,
+        colorSchemeSeed: _colorSchemeSeed,
         brightness: Brightness.light,
       ),
       darkTheme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: Colors.blue,
+        colorSchemeSeed: _colorSchemeSeed,
         brightness: Brightness.dark,
       ),
-      themeMode: ThemeMode.light,
-      home: const PageLogin(),
+      themeMode: _themeMode,
+      home: PageLogin(changeMode: _changeMode, changeTheme: _changeTheme),
     );
   }
 }

@@ -267,6 +267,76 @@ class Server {
       onError(e);
     }
   }
+
+  // MARK: /preferences [GET]
+  /// Get user preferences
+  void getPreferences({
+    required Function(Preferences) onSuccess,
+    required Function(DioException) onError,
+  }) async {
+    try {
+      String token = await Client().getToken();
+
+      var response = await _dio.get(
+        "/preferences",
+        options: Options(
+          headers: {
+            "Authorization": "Bearer $token",
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        onSuccess(Preferences.fromJson(response.data));
+      } else {
+        onError(DioException(
+          requestOptions: response.requestOptions,
+          response: response,
+          message: "${response.data["message"]}",
+          error:
+              "gagal mendapatkan data user dengan status: ${response.statusCode}",
+        ));
+      }
+    } on DioException catch (e) {
+      onError(e);
+    }
+  }
+
+  // MARK: /preferences [PUT]
+  /// Update user preferences
+  void updatePreferences({
+    required Preferences preferences,
+    required Function onSuccess,
+    required Function(DioException) onError,
+  }) async {
+    try {
+      String token = await Client().getToken();
+
+      var response = await _dio.put(
+        "/preferences",
+        data: preferences.toJson(),
+        options: Options(
+          headers: {
+            "Authorization": "Bearer $token",
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        onSuccess();
+      } else {
+        onError(DioException(
+          requestOptions: response.requestOptions,
+          response: response,
+          message: "${response.data["message"]}",
+          error:
+              "gagal mendapatkan data user dengan status: ${response.statusCode}",
+        ));
+      }
+    } on DioException catch (e) {
+      onError(e);
+    }
+  }
 }
 
 class User {
@@ -317,7 +387,7 @@ class Message {
     );
   }
 
-  // to json string method
+  // To json string method
   String toJson() {
     return """
     {
@@ -326,6 +396,45 @@ class Message {
       "receiver_id": $receiverId,
       "content": "$content",
       "timestamp": "$timestamp"
+    }
+    """;
+  }
+}
+
+class Preferences {
+  String mode;
+  String theme;
+  String timeZone;
+  String currency;
+  bool isPremium;
+
+  Preferences({
+    required this.mode,
+    required this.theme,
+    required this.timeZone,
+    required this.currency,
+    required this.isPremium,
+  });
+
+  factory Preferences.fromJson(Map<String, dynamic> json) {
+    return Preferences(
+      mode: json["mode"],
+      theme: json["theme"],
+      timeZone: json["time_zone"],
+      currency: json["currency"],
+      isPremium: json["is_premium"],
+    );
+  }
+
+  // To json string method
+  String toJson() {
+    return """
+    {
+      "mode": "$mode",
+      "theme": "$theme",
+      "time_zone": "$timeZone",
+      "currency": "$currency",
+      "is_premium": $isPremium
     }
     """;
   }
