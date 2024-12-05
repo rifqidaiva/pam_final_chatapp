@@ -53,6 +53,7 @@ func init() {
 		mode TEXT,
 		theme TEXT,
 		time_zone TEXT,
+		currency TEXT,
 		is_premium BOOLEAN,
 		FOREIGN KEY (user_id) REFERENCES users(id)
 	);
@@ -71,9 +72,9 @@ func init() {
 	INSERT INTO users (email, password, name) VALUES ("aiken@gmail.com", "$2a$10$Q0FrZosG.ekVpyGz41C4g.nf6ks5G6hDWItTmLhMyRhLwq/1l2rI6", "Aiken");
 	INSERT INTO users (email, password, name) VALUES ("wahyu@gmail.com", "$2a$10$mLykOmNSkp02xP8t4zQfzeQh65.6.BHLhp2VaB3KfyfAVpVO9W.hG", "Wahyu");
 
-	INSERT INTO preferences (user_id, mode, theme, time_zone, is_premium) VALUES (1, "light", "default", "WIB", 1);
-	INSERT INTO preferences (user_id, mode, theme, time_zone, is_premium) VALUES (2, "light", "default", "WIB", 0);
-	INSERT INTO preferences (user_id, mode, theme, time_zone, is_premium) VALUES (3, "light", "default", "WIB", 0);
+	INSERT INTO preferences (user_id, mode, theme, time_zone, currency, is_premium) VALUES (1, "light", "default", "WIB", "IDR", 1);
+	INSERT INTO preferences (user_id, mode, theme, time_zone, currency, is_premium) VALUES (2, "light", "default", "WIB", "IDR", 0);
+	INSERT INTO preferences (user_id, mode, theme, time_zone, currency, is_premium) VALUES (3, "light", "default", "WIB", "IDR", 0);
 
 	INSERT INTO messages (sender_id, receiver_id, content) VALUES (2, 3, "Hi Aiken, Wahyu here. How's it going?");
 	INSERT INTO messages (sender_id, receiver_id, content) VALUES (3, 2, "Hey Wahyu, Aiken here. All good, you?");

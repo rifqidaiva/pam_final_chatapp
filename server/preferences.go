@@ -11,6 +11,7 @@ type Preferences struct {
 	Theme     string `json:"theme"`
 	TimeZone  string `json:"time_zone"`
 	IsPremium bool   `json:"is_premium"`
+	Currency  string `json:"currency"`
 }
 
 // MARK: /preferences
@@ -38,8 +39,8 @@ func preferencesEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
 		var prefs Preferences
-		err = db.QueryRow("SELECT mode, theme, time_zone, is_premium FROM preferences WHERE user_id = ?", user.Id).
-			Scan(&prefs.Mode, &prefs.Theme, &prefs.TimeZone, &prefs.IsPremium)
+		err = db.QueryRow("SELECT mode, theme, time_zone, is_premium, currency FROM preferences WHERE user_id = ?", user.Id).
+			Scan(&prefs.Mode, &prefs.Theme, &prefs.TimeZone, &prefs.IsPremium, &prefs.Currency)
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte(`{"message": "preferences not found"}`))
@@ -58,8 +59,8 @@ func preferencesEndpoint(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		_, err = db.Exec("UPDATE preferences SET mode = ?, theme = ?, time_zone = ?, is_premium = ? WHERE user_id = ?",
-			prefs.Mode, prefs.Theme, prefs.TimeZone, prefs.IsPremium, user.Id)
+		_, err = db.Exec("UPDATE preferences SET mode = ?, theme = ?, time_zone = ?, is_premium = ?, currency = ? WHERE user_id = ?",
+			prefs.Mode, prefs.Theme, prefs.TimeZone, prefs.IsPremium, prefs.Currency, user.Id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(`{"message": "` + err.Error() + `"}`))

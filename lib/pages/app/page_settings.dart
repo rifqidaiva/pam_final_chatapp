@@ -117,6 +117,13 @@ class _PageSettingsState extends State<PageSettings> {
                 },
               ),
             ),
+            const SizedBox(height: 20),
+            FilledButton(
+              onPressed: () {
+                // save the selected settings
+              },
+              child: const Text("Simpan"),
+            ),
           ],
         ),
       ),

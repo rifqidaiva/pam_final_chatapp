@@ -79,9 +79,18 @@ class _AppProfileState extends State<AppProfile> {
               },
             ),
             ListTile(
-              title: const Text("Keluar"),
-              leading: const Icon(Icons.logout),
+              title: Text(
+                "Keluar",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onError,
+                ),
+              ),
+              leading: Icon(
+                Icons.logout,
+                color: Theme.of(context).colorScheme.onError,
+              ),
               visualDensity: VisualDensity.compact,
+              tileColor: Theme.of(context).colorScheme.error,
               onTap: () {
                 Client().removeToken();
                 Navigator.pushReplacement(
