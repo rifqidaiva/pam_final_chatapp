@@ -25,7 +25,7 @@ class _PageConversationState extends State<PageConversation> {
   final ScrollController _scrollController = ScrollController();
   final List<Message> _conversation = [];
   final _channel = WebSocketChannel.connect(
-    Uri.parse('ws://localhost:8080/ws'),
+    Uri.parse('ws://3bab-182-253-126-0.ngrok-free.app/ws'),
   );
 
   // Default current user ID is 1 (Admin in database)

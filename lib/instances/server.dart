@@ -10,7 +10,7 @@ class Server {
   }
 
   Server._internal() {
-    _dio.options.baseUrl = "http://localhost:8080";
+    _dio.options.baseUrl = "https://3bab-182-253-126-0.ngrok-free.app";
     _dio.options.connectTimeout = const Duration(seconds: 5);
     _dio.options.receiveTimeout = const Duration(seconds: 3);
   }
@@ -92,6 +92,7 @@ class Server {
         options: Options(
           headers: {
             "Authorization": "Bearer $token",
+            "ngrok-skip-browser-warning": "true",
           },
         ),
       );
@@ -130,6 +131,7 @@ class Server {
         options: Options(
           headers: {
             "Authorization": "Bearer $token",
+            "ngrok-skip-browser-warning": "true",
           },
         ),
       );
@@ -164,6 +166,7 @@ class Server {
         options: Options(
           headers: {
             "Authorization": "Bearer $token",
+            "ngrok-skip-browser-warning": "true",
           },
         ),
       );
@@ -206,6 +209,7 @@ class Server {
         options: Options(
           headers: {
             "Authorization": "Bearer $token",
+            "ngrok-skip-browser-warning": "true",
           },
         ),
       );
@@ -244,6 +248,7 @@ class Server {
         options: Options(
           headers: {
             "Authorization": "Bearer $token",
+            "ngrok-skip-browser-warning": "true",
           },
         ),
       );
@@ -282,6 +287,7 @@ class Server {
         options: Options(
           headers: {
             "Authorization": "Bearer $token",
+            "ngrok-skip-browser-warning": "true",
           },
         ),
       );
@@ -318,6 +324,7 @@ class Server {
         options: Options(
           headers: {
             "Authorization": "Bearer $token",
+            "ngrok-skip-browser-warning": "true",
           },
         ),
       );

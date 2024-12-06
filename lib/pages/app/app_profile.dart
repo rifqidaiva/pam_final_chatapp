@@ -1,4 +1,6 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
+// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:pam_final_client/components/profile.dart';
 import 'package:pam_final_client/components/text.dart';
 import 'package:pam_final_client/instances/client.dart';
@@ -91,13 +93,28 @@ class _AppProfileState extends State<AppProfile> {
             ),
             ListTile(
               title: const Text("Konversi Mata Uang"),
-              leading: const Icon(Icons.settings),
+              leading: const Icon(Icons.monetization_on),
               visualDensity: VisualDensity.compact,
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => const PageCurrency(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              title: const Text("Notifikasi"),
+              leading: const Icon(Icons.notifications),
+              visualDensity: VisualDensity.compact,
+              onTap: () async {
+                AwesomeNotifications().createNotification(
+                  content: NotificationContent(
+                    id: 10,
+                    channelKey: 'basic_channel',
+                    title: 'HaloTalk',
+                    body: 'Ini adalah notifikasi dari HaloTalk',
                   ),
                 );
               },

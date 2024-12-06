@@ -1,10 +1,24 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:pam_final_client/pages/page_login.dart';
 
 // Command to run the app with web security disabled:
 // > flutter run -d chrome --web-browser-flag "--disable-web-security"
 // For more information, see https://stackoverflow.com/questions/65630743/how-to-solve-flutter-web-api-cors-error-only-with-dart-code
-void main() {
+
+void main() async {
+  AwesomeNotifications().initialize(
+    null,
+    [
+      NotificationChannel(
+        channelKey: 'basic_channel',
+        channelName: 'Basic notifications',
+        channelDescription: 'Notification channel for basic tests',
+      )
+    ],
+    debug: true,
+  );
+
   runApp(const MyApp());
 }
 

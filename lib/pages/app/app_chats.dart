@@ -27,7 +27,7 @@ class _AppChatsState extends State<AppChats> {
   final TextEditingController _searchController = TextEditingController();
   final List<Map<String, dynamic>> _chats = [];
   final _channel = WebSocketChannel.connect(
-    Uri.parse('ws://localhost:8080/ws'),
+    Uri.parse('ws://3bab-182-253-126-0.ngrok-free.app/ws'),
   );
   String timeZone = "WIB";
 
